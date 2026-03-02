@@ -1,1 +1,18 @@
-todo
+https://www.quora.com/What-is-your-coolest-C-code-in-10-lines-or-less
+
+Why is this impressive? Because in 10 lines you created a function that is a factory that works for any kind of data, that is thread safe and serves as a cache for items that are usually costly to create, e.g. images.
+
+Line 3 and 4 create the lock guard that makes the whole function thread safe.
+
+Line 6 is the map that is used to represent the cache. Note that it uses weak pointers to refer to the data. That means the cache is not responsible for the lifetime but can still check whether the data still exists.
+
+Line 7 the entry in the cache is queried.
+
+Line 8 to 11 check whether the data was already loaded and then simply return the pointer, otherwise it creates the data and returns the pointer then.
+
+I found it pretty impressive.
+
+
+
+
+I saw this one in a talk from Herb Sutter and found it very impressive. If you omit the brackets and the “using namespace std;” which is just syntactic sugar it is 10 lines .
