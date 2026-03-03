@@ -6,10 +6,10 @@
 #include<condition_variable>
 #include<exception>
 #include<stdexcept>
+#include<variant>
+#include<optional>
 using std::shared_ptr;
-using std::unique_ptr;
 using std::make_shared;
-using std::make_unique;
 using std::move;
 using std::mutex;
 using std::condition_variable;
@@ -22,13 +22,18 @@ using std::runtime_error;
 namespace mpcs {
 template<class T> class MyPromise;
 
-enum class State { empty, val, exc };
+// overloaded helper
+template<class... Ts>
+struct overloaded : Ts... {
+    using Ts::operator()...;
+};
+template<class... Ts>
+overloaded(Ts...) -> overloaded<Ts...>;
 
+// replaced enum+unique_ptr+exception_ptr with optional<variant>
 template<class T>
 struct SharedState {
-  State state{State::empty};
-  unique_ptr<T> value;
-  exception_ptr exception;
+  std::optional<std::variant<T, std::exception_ptr>> result;
   mutex mtx;
   condition_variable cv;
 };
@@ -41,16 +46,16 @@ public:
   // MyFuture(MyFuture &&other) : sharedState{move(other.sharedState)} {}
   T get() {
     unique_lock lck{sharedState->mtx};
+    // wait until result is set (nullopt = empty)
     sharedState->cv.wait(lck, 
-		[&] {return sharedState->state != State::empty; });
-    switch (sharedState->state) {
-    case State::val:
-      return move(*sharedState->value);
-    case State::exc:
-      rethrow_exception(sharedState->exception);
-    default:
-      throw runtime_error{"Invalid state for future"};
-    }
+		[&] {return sharedState->result.has_value(); });
+
+    // use visit+overloaded instead of switch on enum
+    return std::visit(overloaded{
+        [](T& v) -> T { return std::move(v); },
+        [](exception_ptr& e) -> T { rethrow_exception(e); throw; }
+        }, *sharedState->result);
+
   }
 private:
   friend class MyPromise<T>;
@@ -65,17 +70,17 @@ class MyPromise
 public:
   MyPromise() : sharedState{make_shared<SharedState<T>>()} {}
 
+  // assign T directly into optional
   void set_value(T const &value) {
     lock_guard lck(sharedState->mtx);
-    sharedState->value = make_unique<T>(value);
-    sharedState->state = State::val;
+    sharedState->result = value;
     sharedState->cv.notify_one();
   }
 
+  // assign exception_ptr into optional
   void set_exception(exception_ptr exc) {
     lock_guard lck(sharedState->mtx);
-    sharedState->exception = exc;
-    sharedState->state = State::exc;
+    sharedState->result = exc;
     sharedState->cv.notify_one();
   }
 
