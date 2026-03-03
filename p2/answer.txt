@@ -1,18 +1,20 @@
-https://www.quora.com/What-is-your-coolest-C-code-in-10-lines-or-less
+The LLVM Compiler is an excellent example of a C++ program which adheres to the SOLID principles. 
 
-Why is this impressive? Because in 10 lines you created a function that is a factory that works for any kind of data, that is thread safe and serves as a cache for items that are usually costly to create, e.g. images.
-
-Line 3 and 4 create the lock guard that makes the whole function thread safe.
-
-Line 6 is the map that is used to represent the cache. Note that it uses weak pointers to refer to the data. That means the cache is not responsible for the lifetime but can still check whether the data still exists.
-
-Line 7 the entry in the cache is queried.
-
-Line 8 to 11 check whether the data was already loaded and then simply return the pointer, otherwise it creates the data and returns the pointer then.
-
-I found it pretty impressive.
+S (Single Responsibility):
+LLVM is made up of a long chain of "passes", which each perform one change or optimization per pass. Each pass has a single responsibility, preventing "spaghetti code" and ensuring a bug in a single pass doesn't break or affect other unrelated parts of the compiler.
 
 
+O (Open/Closed):
+LLVM allows developers to add custom optimization passes to the PassManager without modifying the core engine source code. Because LLVM uses modular architecture, developers can add/remove custom pluggable components without breaking anything.
 
 
-I saw this one in a talk from Herb Sutter and found it very impressive. If you omit the brackets and the “using namespace std;” which is just syntactic sugar it is 10 lines .
+L (Liskov Substitution):
+The Value class is a universal base for a number of different subtypes. LLVM uses a custom Run-Time Type Information system to make sure that down casting to a subtype is consistent with the base.
+
+
+I (Interface Segregation):
+There isn't one enormous interface for IR objects. LLVM uses specialized classes, like GlobalValue and Instruction, which divide up functionality and prevent complex methods and nullified fields on objects that don't need them.
+
+
+D (Dependency Inversion):
+One could argue that the whole reason LLVM exists is to solve the low-level hardware dependency problem. It does so by using abstract interfaces like TargetMachine instead of a concrete reference. This inversion enables the IR to compile across a wide range of architectures, including x86 and ARM.
