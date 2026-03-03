@@ -1,4 +1,4 @@
-The LLVM Compiler is an excellent example of a C++ program which adheres to the SOLID principles. 
+I decided to look at the LLVM Compiler because we use it a lot in the Compilers class. Ultimately I found that it adheres very well to the SOLID principles.
 
 S (Single Responsibility):
 LLVM is made up of a long chain of "passes", which each perform one change or optimization per pass. Each pass has a single responsibility, preventing "spaghetti code" and ensuring a bug in a single pass doesn't break or affect other unrelated parts of the compiler.
@@ -17,4 +17,4 @@ There isn't one enormous interface for IR objects. LLVM uses specialized classes
 
 
 D (Dependency Inversion):
-One could argue that the whole reason LLVM exists is to solve the low-level hardware dependency problem. It does so by using abstract interfaces like TargetMachine instead of a concrete reference. This inversion enables the IR to compile across a wide range of architectures, including x86 and ARM.
+One could argue that the whole reason LLVM exists is to solve the low-level hardware dependency problem. It does so by using abstract interfaces like TargetMachine instead of a concrete reference. This allows the IR to compile across a wide range of architectures, like x86 and ARM.
