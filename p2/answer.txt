@@ -1,4 +1,4 @@
-I decided to look at the LLVM Compiler because we use it a lot in the Compilers class. Ultimately I found that it adheres very well to the SOLID principles.
+I decided to look at the LLVM Compiler, because we use it a lot in the Compilers class. Ultimately I found that it adheres very well to the SOLID principles.
 
 S (Single Responsibility):
 LLVM is made up of a long chain of "passes", which each perform one change or optimization per pass. Each pass has a single responsibility, preventing "spaghetti code" and ensuring a bug in a single pass doesn't break or affect other unrelated parts of the compiler.
